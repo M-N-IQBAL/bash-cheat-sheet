@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bash Scripting Cheat Sheet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+            background-color:whitesmoke;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 0%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            /* background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); */
+            background:#1e1e1e;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            /* Flexbox for header content: title/description on left, button on right */
+            display: flex;
+            justify-content: space-between; /* Pushes content to edges */
+            align-items: center; /* Vertically aligns items */
+            flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="40%"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>');
+            opacity: 0.1;
+        }
+
+        .header-content { /* New div for title and description */
+            text-align: left; /* Align text within this div */
+            margin-right: 20px; /* Space between text and button */
+            position: relative;
+            z-index: 1;
+            flex-grow: 1; /* Allows this section to grow and take available space */
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 15px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 15px 25px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .table-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #ecf0f1;
+            vertical-align: top;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+            transform: translateX(2px);
+            transition: all 0.2s ease;
+        }
+
+        .code {
+            font-family: 'Courier New', monospace;
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .single-table {
+            grid-column: 1 / -1;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 1024px) {
+            .table-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                flex-direction: column; /* Stack header items vertically */
+                gap: 15px; /* Space between title/desc and button */
+                padding: 20px; /* Adjust padding for smaller screens */
+            }
+
+            .header-content {
+                text-align: center; /* Center text when stacked */
+                margin-right: 0; /* Remove right margin */
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 0.8rem;
+            }
+
+            th, td {
+                padding: 8px 10px;
+            }
+        }
+
+        .footer {
+            background: #34495e;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            /* Removed flex styles from footer as button is no longer here */
+        }
+
+        /* NEW CSS FOR LINKEDIN BUTTON (already present, just ensured it's correctly placed) */
+        .linkedin-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            border-radius: 30px;
+            background-color: #0A66C2; /* Official LinkedIn blue */
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative; /* Ensure z-index works if needed */
+            z-index: 1; /* Place button above header::before pseudo-element */
+        }
+
+        .linkedin-button:hover {
+            background-color: #084c9c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .linkedin-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .linkedin-button svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content"> <h1>🐚 Bash Scripting Cheat Sheet</h1>
+                <p>Complete reference guide for Bash scripting syntax, operators, and commands</p>
+            </div>
+
+            <a href="https://www.linkedin.com/in/m-n-iqbal/" target="_blank" rel="noopener noreferrer" class="linkedin-button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+                Connect
+            </a>
+        </header>
+
+        <div class="content">
+            <div class="section">
+                <h2 class="section-title">Basic Syntax & Operators</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Syntax</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="code">#!/bin/bash</span></td><td>Path for script interpreter</td></tr>
+                            <tr><td><span class="code">bash file.sh</span></td><td>Execute script in terminal</td></tr>
+                            <tr><td><span class="code">./file.sh</span></td><td>Execute if script is executable</td></tr>
+                            <tr><td><span class="code">#</span></td><td>Make comments in script</td></tr>
+                            <tr><td><span class="code">$1, $2</span></td><td>Input parameters</td></tr>
+                            <tr><td><span class="code">$()</span></td><td>Save output of commands</td></tr>
+                            <tr><td><span class="code">$((...))</span></td><td>Retrieve arithmetic output</td></tr>
+                            <tr><td><span class="code">${...}</span></td><td>String manipulation/variable interpolation</td></tr>
+                            <tr><td><span class="code">></span></td><td>Send output to file</td></tr>
+                            <tr><td><span class="code">>></span></td><td>Append output to file</td></tr>
+                            <tr><td><span class="code">~</span></td><td>Home directory</td></tr>
+                        </tbody>
+                    </table>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Operators</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="code">&&</span></td><td>Logical AND operator</td></tr>
+                            <tr><td><span class="code">||</span></td><td>Logical OR operator</td></tr>
+                            <tr><td><span class="code">$#</span></td><td>Number of arguments passed</td></tr>
+                            <tr><td><span class="code">$0</span></td><td>Name of the shell</td></tr>
+                            <tr><td><span class="code">exit [0-255]</span></td><td>Exit script with return code</td></tr>
+                            <tr><td><span class="code">()</span></td><td>Run commands in subshell</td></tr>
+                            <tr><td><span class="code">(())</span></td><td>Arithmetic operations</td></tr>
+                            <tr><td><span class="code">[]</span></td><td>Filename expansion/string manipulation</td></tr>
+                            <tr><td><span class="code">|</span></td><td>Run multiple commands together</td></tr>
+                            <tr><td><span class="code">;</span></td><td>Separate multiple commands</td></tr>
+                            <tr><td><span class="code"><</span></td><td>Get input from file</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">File Test Operators & Comparison Operators</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>File Test Operators</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="code">-e</span></td><td>Test if file exists</td></tr>
+                            <tr><td><span class="code">-f</span></td><td>Test if regular file</td></tr>
+                            <tr><td><span class="code">-d</span></td><td>Test if directory</td></tr>
+                            <tr><td><span class="code">-b</span></td><td>Test if block device</td></tr>
+                            <tr><td><span class="code">-s</span></td><td>Test if file not zero size</td></tr>
+                            <tr><td><span class="code">-L</span></td><td>Test if symbolic link</td></tr>
+                            <tr><td><span class="code">-S</span></td><td>Test if socket</td></tr>
+                            <tr><td><span class="code">-r</span></td><td>Test read permission</td></tr>
+                            <tr><td><span class="code">-w</span></td><td>Test write permission</td></tr>
+                            <tr><td><span class="code">-x</span></td><td>Test execute permission</td></tr>
+                            <tr><td><span class="code">-O</span></td><td>You are owner</td></tr>
+                            <tr><td><span class="code">f1 -nt f2</span></td><td>f1 newer than f2</td></tr>
+                            <tr><td><span class="code">f1 -ot f2</span></td><td>f1 older than f2</td></tr>
+                        </tbody>
+                    </table>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Integer & String Operators</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="highlight">INTEGER</span></td><td></td></tr>
+                            <tr><td><span class="code">-eq</span></td><td>Is equal to</td></tr>
+                            <tr><td><span class="code">-ne</span></td><td>Is not equal to</td></tr>
+                            <tr><td><span class="code">-gt</span></td><td>Is greater than</td></tr>
+                            <tr><td><span class="code">-ge</span></td><td>Is greater than or equal to</td></tr>
+                            <tr><td><span class="code">-lt</span></td><td>Is less than</td></tr>
+                            <tr><td><span class="code">-le</span></td><td>Is less than or equal to</td></tr>
+                            <tr><td><span class="highlight">STRING</span></td><td></td></tr>
+                            <tr><td><span class="code">=</span></td><td>Is equal to</td></tr>
+                            <tr><td><span class="code">!=</span></td><td>Is not equal to</td></tr>
+                            <tr><td><span class="code"><</span></td><td>Less than</td></tr>
+                            <tr><td><span class="code">></span></td><td>Greater than</td></tr>
+                            <tr><td><span class="code">-z</span></td><td>String is null</td></tr>
+                            <tr><td><span class="code">-n</span></td><td>String is not null</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Regular Expressions & Control Structures</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Regex Expressions</th>
+                                <th>Explanation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="code">.</span></td><td>Matches any single character</td></tr>
+                            <tr><td><span class="code">?</span></td><td>Preceding item optional (0 or 1)</td></tr>
+                            <tr><td><span class="code">*</span></td><td>Preceding item 0 or more times</td></tr>
+                            <tr><td><span class="code">+</span></td><td>Preceding item 1 or more times</td></tr>
+                            <tr><td><span class="code">{N}</span></td><td>Preceding item exactly N times</td></tr>
+                            <tr><td><span class="code">{N,}</span></td><td>Preceding item N or more times</td></tr>
+                            <tr><td><span class="code">^</span></td><td>Beginning of line</td></tr>
+                            <tr><td><span class="code">$</span></td><td>End of line</td></tr>
+                            <tr><td><span class="code">[a-d]</span></td><td>Any character in range a-d</td></tr>
+                        </tbody>
+                    </table>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Loops & Conditions</th>
+                                <th>Explanation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="code">if then fi</span></td><td>Test a condition</td></tr>
+                            <tr><td><span class="code">if then else fi</span></td><td>Test with fallback</td></tr>
+                            <tr><td><span class="code">if then elif else fi</span></td><td>Multiple condition tests</td></tr>
+                            <tr><td><span class="code">for do done</span></td><td>Iterate over values</td></tr>
+                            <tr><td><span class="code">while do done</span></td><td>Loop while condition true</td></tr>
+                            <tr><td><span class="code">until do done</span></td><td>Loop until condition true</td></tr>
+                            <tr><td><span class="code">sleep time</span></td><td>Wait specified time</td></tr>
+                            <tr><td><span class="code">break</span></td><td>Exit loop, continue script</td></tr>
+                            <tr><td><span class="code">continue</span></td><td>Skip to next iteration</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Arrays, Functions & System Configuration</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bash Arrays</th>
+                                <th>Explanation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="code">array=("elements")</span></td><td>Create string array</td></tr>
+                            <tr><td><span class="code">${array[0]}</span></td><td>Get first element</td></tr>
+                            <tr><td><span class="code">${array[*]}</span></td><td>Get all values</td></tr>
+                            <tr><td><span class="code">${array[-1]}</span></td><td>Get last value</td></tr>
+                            <tr><td><span class="code">${array[@]}</span></td><td>Expand all elements</td></tr>
+                            <tr><td><span class="code">shift</span></td><td>Move $2 to $1</td></tr>
+                            <tr><td><span class="highlight">FUNCTIONS</span></td><td></td></tr>
+                            <tr><td><span class="code">function() { content }</span></td><td>Define a function</td></tr>
+                            <tr><td><span class="code">alias</span></td><td>List all aliases</td></tr>
+                            <tr><td><span class="code">alias name='command'</span></td><td>Define an alias</td></tr>
+                        </tbody>
+                    </table>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>System Configuration</th>
+                                <th>Explanation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="code">/etc/profile</span></td><td>Executed at login</td></tr>
+                            <tr><td><span class="code">~/.bashrc</span></td><td>Read by non-login shells</td></tr>
+                            <tr><td><span class="highlight">TEXT PROCESSING</span></td><td></td></tr>
+                            <tr><td><span class="code">grep foo file.txt</span></td><td>Search word in file</td></tr>
+                            <tr><td><span class="code">egrep "(foo|bar)" file.txt</span></td><td>Find multiple words</td></tr>
+                            <tr><td><span class="code">sed s/foo/bar/g file.txt</span></td><td>Find and replace text</td></tr>
+                            <tr><td><span class="code">locate file.txt</span></td><td>Quick file location</td></tr>
+                            <tr><td><span class="highlight">PERMISSIONS</span></td><td></td></tr>
+                            <tr><td><span class="code">chown user:group file</span></td><td>Change file ownership</td></tr>
+                            <tr><td><span class="code">chmod ugo file.txt</span></td><td>Change file permissions</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">Common Utilities & Network Commands</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>File & System Commands</th>
+                                <th>Explanation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="code">ls -l</span></td><td>List by type and permission</td></tr>
+                            <tr><td><span class="code">ls -a</span></td><td>List all files (including hidden)</td></tr>
+                            <tr><td><span class="code">pwd</span></td><td>Display current directory</td></tr>
+                            <tr><td><span class="code">whoami</span></td><td>Current logged user</td></tr>
+                            <tr><td><span class="code">last</span></td><td>Display last user logins</td></tr>
+                            <tr><td><span class="code">find /home -name *.txt</span></td><td>Search text files in /home</td></tr>
+                            <tr><td><span class="code">find . -size 10k -print</span></td><td>Find files >10k current dir</td></tr>
+                            <tr><td><span class="code">ps -ef</span></td><td>Check running services</td></tr>
+                            <tr><td><span class="code">df -h</span></td><td>Show filesystem usage</td></tr>
+                            <tr><td><span class="code">du -sh</span></td><td>Show directory disk usage</td></tr>
+                            <tr><td><span class="code">free -m</span></td><td>Show memory usage</td></tr>
+                            <tr><td><span class="code">lsof</span></td><td>List open files by processes</td></tr>
+                            <tr><td><span class="code">top</span></td><td>Real-time process monitor</td></tr>
+                            <tr><td><span class="code">kill pid</span></td><td>Kill running process</td></tr>
+                            <tr><td><span class="code">passwd username</span></td><td>Set/reset user password</td></tr>
+                        </tbody>
+                    </table>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Network & Remote Commands</th>
+                                <th>Explanation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="code">ping host</span></td><td>Check host reachability</td></tr>
+                            <tr><td><span class="code">nslookup</span></td><td>DNS query</td></tr>
+                            <tr><td><span class="code">ssh user@host</span></td><td>Login to remote system</td></tr>
+                            <tr><td><span class="code">netstat -ant</span></td><td>Check network connections</td></tr>
+                            <tr><td><span class="code">netstat -ent</span></td><td>Check established connections</td></tr>
+                            <tr><td><span class="code">ifconfig</span></td><td>Check network interfaces</td></tr>
+                            <tr><td><span class="code">scp -r dir user@host:/opt/</span></td><td>Copy to remote recursively</td></tr>
+                            <tr><td><span class="code">scp -r user@host:/opt/ dir/</span></td><td>Copy from remote recursively</td></tr>
+                            <tr><td><span class="code">rsync -avz local user@host:/backup</span></td><td>Sync files between systems</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>🚀 Bash Scripting Cheat Sheet </p>
+            <p style="margin-top: 10px; font-size: 0.95rem;">
+                Made by <a href="https://github.com/M-N-IQBAL" target="_blank" style="color: #3498db; text-decoration: none; font-weight: 600;">M N IQBAL</a> | 
+                <span style="color: #ecf0f1;">Follow for more amazing content! 🔥</span>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
